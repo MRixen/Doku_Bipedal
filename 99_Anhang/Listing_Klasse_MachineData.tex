@@ -1,0 +1,32 @@
+\label{appCode:klasseMachineData}
+\begin{lstlisting}[language=java, caption=Klasse MachineData]
+    protected void onCreate(Bundle savedInstanceState) {
+(...)
+        Bundle bundle = getIntent().getExtras();
+        BaseData baseData = (BaseData) bundle.getSerializable("baseData");
+        if (receiver == null) {
+            (...)
+                receiver = baseData.getReceiver();
+                receiver.registerListener(this);
+            (...)
+    }
+    
+        public void onEvent(String data1, String data2) {
+            showEvent(data2, data1);
+        }
+        
+        private void showEvent(String msgType, String eventMessage) {
+            int number = -1;
+                    try {
+                        number = Integer.parseInt(msgType);
+                    } catch (NumberFormatException e) {
+                    }
+            if (number != -1) {
+            (...)
+                machineData[Integer.parseInt(msgType)] = eventMessage;
+                textViews[Integer.parseInt(msgType)].setText(eventMessage);
+            } 
+            (...)
+        }
+
+\end{lstlisting}

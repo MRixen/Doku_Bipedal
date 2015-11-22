@@ -1,0 +1,49 @@
+\label{abbCode:moduleServerComm}
+\begin{lstlisting}[language=java, caption=Task ServerComm - Modul ServerComm]
+PROC main()
+    WHILE TRUE DO
+        waitForClients;
+    ENDWHILE
+ENDPROC    
+(...)
+PROC waitForClients()
+     TEST state
+     CASE 1:
+			(...)
+     CASE 4:			
+         WHILE listening DO
+             IF i<=MAX_CLIENTS THEN					
+                 SocketAccept server_socket,client_socket{i}\Time:=WAIT_MAX;    
+					(...)
+					ENDIF
+         ENDWHILE
+ 				FOR i FROM 1 TO 25 DO
+ 					IF (bufferStateEvent{i}) THEN
+ 						SocketSend client_socket{1}\Str:=sendbufferEvent{i};
+ 						sendbufferEvent{i} := "";
+ 						bufferStateEvent{i} := false;
+ 						WaitTime 0.08;
+ 					ENDIF					
+					(...)										
+ 				ENDFOR
+     DEFAULT:
+     ENDTEST   
+ENDPROC    
+
+    ERROR
+        IF ERRNO=ERR_SOCK_CLOSED THEN
+		(...)
+        IF ERRNO=ERR_SOCK_ADDR_INUSE THEN
+		(...)
+        IF ERRNO=ERR_SOCK_TIMEOUT THEN
+		(...)
+    ENDPROC
+
+    PROC initSocket()
+        SocketClose server_socket;
+        SocketClose client_socket{1};
+		(...)
+        listening:=TRUE;
+		clientConnected:=FALSE; 
+    ENDPROC
+\end{lstlisting}

@@ -1,0 +1,28 @@
+\label{appCode:klasseCycleTime}
+\begin{lstlisting}[language=java, caption=Klasse CycleTime]
+    protected void onCreate(Bundle savedInstanceState) {
+(...)
+        Bundle bundle = getIntent().getExtras();
+        BaseData baseData = (BaseData) bundle.getSerializable("baseData");
+        if (receiver == null) {
+            (...)
+                receiver = baseData.getReceiver();
+                receiver.registerListener(this);
+            (...)
+    }
+    
+        public void onEvent(String msg, String msgType) {
+            showMessage(msgType, msg);
+        }
+        
+            private void showMessage(String msgType, String msg) {
+                if (msgType.equals("c1")) {
+                    String msgTemp = msg.replace(".", ",");
+                    cycleTimeViewer_actual.setText(msgTemp);
+                }
+                if (msgType.equals("c2")) {
+                    String msgTemp = msg.replace(".", ",");
+                    cycleTimeViewer_mean.setText(msgTemp);
+                }
+            }
+\end{lstlisting}

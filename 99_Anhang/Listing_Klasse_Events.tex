@@ -1,0 +1,90 @@
+\label{appCode:klasseEvents}
+\begin{lstlisting}[language=java, caption=Klasse Events]
+protected void onCreate(Bundle savedInstanceState) {
+(...)
+	Bundle bundle = getIntent().getExtras();
+    BaseData baseData = (BaseData) bundle.getSerializable("baseData");
+    if (receiver == null) {
+	    (...)
+        receiver = baseData.getReceiver();
+        receiver.registerListener(this);
+        (...)
+}
+
+public void onEvent(String msg, String msgType) {
+	showEvent(msgType, msg, true);
+}
+
+private void showEvent(String msgType, String eventMessage, boolean saveEvent) {
+	if (msgType.equals("e")){
+	    if (saveEvent) listViewEntryData[listCounter] = eventMessage;
+        String[] tempMessage = eventMessage.split(":");
+        new XMLParsing(saveEvent, this).execute(tempMessage);
+    }
+}
+
+    private class XMLParsing extends AsyncTask<String, Void, String[]> {
+(...)
+        protected String[] doInBackground(String... eventMessages) {
+            this.eventMessages = eventMessages;
+            String[] eventDescription = new String[] {"", "", "", "", "", ""};
+(...)
+                switch (Integer.parseInt(eventMessages[1])){
+                    case 1:
+                        if (Integer.parseInt(eventMessages[2]) <= 175) filename 
+                        = "elog/"+"opr_"+"elogtext_"+1+".xml";
+                        if ((Integer.parseInt(eventMessages[2]) > 175) && 
+                        (Integer.parseInt(eventMessages[2]) <= 1231)) filename 
+                        = "elog/"+"opr_"+"elogtext_"+2+".xml";
+                        (...)
+                        break;
+                    case 2:
+                        (...)
+                }
+                InputStream in_s = getAssets().open(filename);
+                (...)
+
+                while ((event != XmlPullParser.END_DOCUMENT) && !messageReadOk)
+                {
+                    switch (event){
+                        case XmlPullParser.START_TAG:
+                            name = xmlParser.getName();
+                            if(name.equals("Message") && !messageEntryFound) {
+                                String messageNumber = 
+                                xmlParser.getAttributeValue(null,"number");
+                                if (messageNumber.equals(eventMessages[2])){
+                                    messageEntryFound = true;
+                                }
+                            }
+                            if(messageEntryFound && name.equals("Title")) 
+                            eventDescription[0] = xmlParser.nextText();
+                            if(messageEntryFound && name.equals("Description")){
+                                eventDescription[1] = xmlParser.nextText();
+                                eventDescription[1] = 
+                                String.format(eventDescription[1], 
+                                eventMessages[4], eventMessages[5], 
+                                eventMessages[6], eventMessages[7], 
+                                eventMessages[8]);
+                            }
+(...)
+                            break;
+
+                        case XmlPullParser.END_TAG:
+(...)
+                    }
+                    if (!messageReadOk){
+(...)
+        }
+        eventDescription[5] = eventMessages[3];
+                    return eventDescription;
+                    }
+
+        protected void onPostExecute(String[] result) {
+            if (addEvents) setEventList(result[0]);
+            if ((eventMessages[0].equals("0")) || !addEvents){
+                customEventDialog.showDialog(result);
+                if (addEvents) vibrator.vibrate(800);
+            }
+        }
+    }
+\end{lstlisting}

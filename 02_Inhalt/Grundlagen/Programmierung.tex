@@ -1,0 +1,143 @@
+\subsection{Programmierung}
+\subsubsection{OpenCM Code}
+Das OpenCM Board wird mit der gls{ide} Robotis OpenCM (modifizierte 
+Arduino-Umgebung) programmiert, da das Programm sehr schlicht gehalten wird.
+Der Speicherplatz von OpenCM ist stark begrenzt, sodass dieses nur als 
+Befehlsverteiler fungiert.\\
+Das bedeutet, dass ein übergeorndneter Rechner (geplant ist Raspberry Pi) eine 
+in C\# geschriebene \gls{hmi} enthält mit der die komplette Regelung aktiviert 
+und (in gewissen Mae) modifiziert werden kann.\\
+Das Board OpenCM empfängt die vom Rasbperry Pi gesendeten Befehle und leitet 
+diese an die entsprechenden Aktoren weiter.
+
+Das Programm, welches auf dem OpenCM-Controller läuft ist in 
+\ref{lst:OpenCMcode} dargestellt.\\
+In Zeile 1-3 erfolgt das Definieren des seriellen Bus, welche verwendet werden 
+können. Da das Extension Board zusammen mit dem OpenCM Controller Verwendung 
+findet wird in Zeile 9 der Bus 3 übergeben.\\
+Jeder Aktor erhält eine ID (zwischen 0 und 253) und ist aktuell (wie in Zeile 4 
+zu sehen) auf 1 gesetzt. 
+Die Befehle, welche an den Servomoter geschickt werden können, um Daten zu 
+setzen oder abzurufen sind in \ref{tab:CommandsDynamixel} dargestellt. In Zeile 
+6 erfolgt die Definition des Befehls 30, die den Aktor zu einer Position (0-300 
+$[$deg$]$, bzw. 0-1024).\\
+In der setup-Routine (Zeile 11-15) erfolgt das Setzen der Baudrate (s. 
+\ref{tab:baudrate}) und des Bewegugnsmodus (Joint oder Wheel) für den 
+entsprechenden Aktor. 
+Sobald Daten auf der seriellen Schnittstelle vorliegen werden diese in Zeile 
+19-23 mit der Funktion getValue() abgerufen und an die Funktion Dxl.writeWord() 
+(s. \ref{lst:dxlWriteWord} übergeben.
+\label{lst:dxlWriteWord}
+\begin{lstlisting}[language=java, caption=Funktion dxlWriteWord]
+void dxl_write_word(
+   int id,
+   int address,
+   int value
+);
+\end{lstlisting}
+
+Die Funktion getValue() liest die Anzahl der gesendeten Zeichen und splittet 
+diese auf in die ID, den Befehl und den Wert für den Befehl (Zeile 17-XX).
+
+\label{lst:OpenCMcode}
+\begin{lstlisting}[language=java, caption=OpenCM-Programm]
+#define DXL_BUS_SERIAL3 3
+#define ID_NUM 1
+#define DIM_ID_ARRAY 3
+#define DIM_CMD_ARRAY 2
+#define DIM_VAL_ARRAY 4
+
+Dynamixel Dxl(DXL_BUS_SERIAL3);
+  int id;
+  int command;
+  int sollPosition;
+
+void setup() {
+  Dxl.begin(3);
+  Dxl.jointMode(ID_NUM);
+}
+
+void loop() {
+   id = getValue();
+   command = getValue();
+   sollPosition = getValue();
+   if((id != -1) & (command != -1) & (sollPosition != -1)) Dxl.writeWord(id, 
+   command, sollPosition);
+   delay(100);
+}
+
+int getValue(){
+  int inValue;
+  int cntr;
+  int motorId[DIM_ID_ARRAY];
+  int command[DIM_CMD_ARRAY];
+  int value[DIM_VAL_ARRAY];
+   
+  // Check if there is something to receive
+  cntr = SerialUSB.available();  
+  if(cntr>0){
+    // Read the first parameter to the first semicolon
+  for(unsigned int i=0; i < cntr;i++){
+      inValue = (SerialUSB.read())-48;
+      if(inValue != 11) {
+        motorId[i] = inValue; 
+      }
+      else return calcValue(motorId, i,calcMult(i));;
+    }
+    }
+    else return -1;
+  } 
+
+// Caclulate the multiplicator
+int calcMult(int steps){
+    int multiplicator = 1;
+    
+    for(unsigned int i=0; i < steps-1;i++){
+      multiplicator = multiplicator*10;
+   }
+   return multiplicator;
+}
+
+// Calculate the value
+int calcValue(int data[], int dim, int factor){
+  int retVal = 0;
+
+    for(unsigned int i=0; i <= dim-1;i++){
+      retVal = retVal+(data[i]*factor);
+      factor = factor/10;
+   }  
+   return retVal;
+}
+\end{lstlisting}
+
+\subsubsection{Matlab Code}
+Die entsprechenden Befehle können über ein Matlab-Skript (s. 
+\ref{lst:matlabScript}) an das Board OpenCM gesendet werden. 
+
+\label{lst:matlabScript}
+\begin{lstlisting}[language=java, caption=Matlab-Skript]
+function ComDeltaRobot()    
+    pTime = 0.8;
+    
+    PortID = serial( 'COM3' );
+    set( PortID,'BaudRate',9600, 'StopBits', 2);
+    
+    fopen( PortID );
+    
+    fprintf(PortID,'1;30;55;');
+    pause(pTime);
+    
+    fprintf(PortID,'1;30;0;');
+    pause(pTime);
+
+    fprintf(PortID,'1;30;55;');
+    pause(pTime);
+    
+    fprintf(PortID,'1;30;0;');
+    pause(pTime);
+    
+    OutPort = instrfind('Port','COM3');
+    NewObjs = instrfind;
+    fclose(NewObjs);   
+end
+\end{lstlisting}

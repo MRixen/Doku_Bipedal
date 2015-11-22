@@ -1,0 +1,43 @@
+% Farben definieren
+% ---------------------------------------
+\xdefinecolor{myPersonColor}{RGB}{255,0,0}
+\definecolor{ListingBackground}{rgb}{0.85,0.85,0.85}
+\definecolor{dkgreen}{RGB}{0,0.6,0}
+\definecolor{DarkGreen}{RGB}{0.0,0.4,0.0} 
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{middlegray}{rgb}{0.8,0.8,0.8}
+\definecolor{highlight}{RGB}{255,255,240}
+\definecolor{brown}{RGB}{179,138,58}
+\definecolor{black}{RGB}{0,0,0}
+% ---------------------------------------
+
+% Eigene Befehle
+% ---------------------------------------
+	\newcommand{\Abb}[1]{Abbildung~\ref{#1}}
+	\newcommand{\Seite}[1]{Seite~\pageref{#1}}
+	\newcommand{\cmd}[1]{\textcolor{black}{\textbf{\small#1}}}
+	\newcommand{\cmds}[1]{\textcolor{black}{\textbf{{\small#1}}}}
+	
+	
+	% Mark something with specific color
+	\newcommand{\markRed}[1]{\textcolor{red}{#1}}
+	\newcommand{\markOrange}[1]{\textcolor{orange}{#1}}
+	% Field for usability
+	\newcommand{\feld}[1]{\raisebox{#1\totalheight}{\includegraphics[scale=0.1]{03_Grafiken/EntwicklungHMI/Projektdurchfuehrung/Usability/Feld.png}}}
+	% Load small images with red, yellow and green dot
+	\newcommand{\redDot}[1]{\raisebox{#1\totalheight}{\includegraphics[width=0.1\textwidth]{03_Grafiken/Anhang/redDot.png}}}
+		\newcommand{\greenDot}[1]{\raisebox{#1\totalheight}{\includegraphics[width=0.1\textwidth]{03_Grafiken/Anhang/greenDot.png}}}
+			\newcommand{\yellowDot}[1]{\raisebox{#1\totalheight}{\includegraphics[width=0.1\textwidth]{03_Grafiken/Anhang/yellowDot.png}}}
+			
+	% Definitions to colorize code (mehtods, variables, etc.)
+	\newcommand{\method}[1]{\textcolor{black}{\textbf{\small#1}}}
+	\newcommand{\variable}[1]{\textcolor{black}{\textbf{\small#1}}}		
+	\newcommand{\class}[1]{\textcolor{black}{\textbf{\small#1}}}
+	\newcommand{\object}[1]{\textcolor{black}{\textbf{\small#1}}}
+	\newcommand{\interface}[1]{\textcolor{black}{\textbf{\small#1}}}		
+	\newcommand{\type}[1]{\textcolor{black}{\textbf{\small#1}}}	
+	\newcommand{\package}[1]{\textcolor{black}{\textbf{\small#1}}}	
+	\newcommand{\node}[1]{\textcolor{black}{\textbf{\small#1}}}	
+	\newcommand{\topic}[1]{\textcolor{black}{\textbf{\small#1}}}		
+	\newcommand{\argument}[1]{\textcolor{black}{\textbf{\small#1}}}
+% ---------------------------------------

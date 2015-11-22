@@ -1,0 +1,40 @@
+\label{app:CycleTimer}
+\begin{lstlisting}[language=Java, caption=Task CycleTimer - Modul 
+CycleTimer]
+PROC main()
+	(...)
+	WHILE TRUE DO		
+		WaitTime 0.01;
+	ENDWHILE
+ENDPROC
+	
+TRAP nextCTtrap
+	NextCycleTime;	
+ENDTRAP
+	
+TRAP resetCTtrap
+	ResetCycleTimes;	
+ENDTRAP
+	
+PROC NextCycleTime()		
+	(...)
+    tpWriteSocket "Gesamtzahl der gefertigten Teile:: 
+    "+ValToStr(nCyclesShow),":l:";
+	tpWriteSocket ValToStr(nCycleTime),":c1:";
+	tpWriteSocket ValToStr(cycleTimeMean{1}),":c2:";
+	(...)
+ENDPROC
+	
+(...)
+	
+PROC tpWriteSocket(string msg,string msgType)
+	IF clientConnected THEN
+		sendbufferCycleTime{cntr}:=msgType+msg+";";
+		bufferStateCycleTime{cntr}:=TRUE;	
+		cntr:=cntr+1;
+		IF (cntr>=25) THEN
+			cntr:=1;
+        ENDIF
+	ENDIF
+ENDPROC
+\end{lstlisting}

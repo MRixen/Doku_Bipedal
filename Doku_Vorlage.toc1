@@ -1,0 +1,15 @@
+\select@language {ngerman}
+\select@language {ngerman}
+\begin {tocconditional}{main}
+\contentsline {chapter}{\numberline {1}Einleitung}{1}{chapter.1}
+\contentsline {chapter}{\numberline {2}Interner Aufbau}{2}{chapter.2}
+\contentsline {section}{\numberline {2.1}Nachrichtenaufbau}{2}{section.2.1}
+\contentsline {section}{\numberline {2.2}Programmaufbau}{3}{section.2.2}
+\contentsline {section}{\numberline {2.3}Grafische Benutzeroberfl\IeC {\"a}che}{3}{section.2.3}
+\contentsline {chapter}{\nonumberline Anhangsverzeichnis}{I}{appendix*.3}
+\end {tocconditional} \begin {tocconditional}{appendix}
+\end {tocconditional} \begin {tocconditional}{main}
+\contentsline {chapter}{\nonumberline Abbildungsverzeichnis}{II}{appendix*.4}
+\contentsline {chapter}{\nonumberline Tabellenverzeichnis}{III}{appendix*.5}
+\end {tocconditional}
+

@@ -1,0 +1,44 @@
+\label{appCode:klasseReceiver}
+\begin{lstlisting}[language=java, caption=Klasse Receiver]
+    public Receiver(Context context, String ip, String port, Activity activity){
+        (...)
+        if (nc == null) nc = new NetClient(this.ip, 
+        Integer.parseInt(this.port));
+    }
+	(...)
+
+public void run() {
+	if (nc.connectWithServer()) {
+	    (...)
+        while (isRunning) {
+	        data = nc.receiveDataFromServer();
+			if ((data[0] != null) && (data[1] != null)) {
+	            (...)
+                 for (EventListener eventListener : listeners)
+	                 eventListener.onEvent(data[0], data[1]);
+                     (...)
+            }
+        }
+    }
+	nc.disConnectWithServer();
+    else {
+		(...)
+        Toast.makeText(context, R.string.connectionError, 
+        Toast.LENGTH_LONG).show();
+        Timer t = new Timer();
+        t.schedule(new TimerTask() {
+        public void run() {
+		    activity.finish();
+		}
+	}, maxActivityShowTime);
+}
+
+public void registerListener(EventListener listener) {
+	this.listeners.add(listener);
+}
+
+public interface EventListener {
+    void onEvent(String data1, String data2);
+	(...)
+}
+\end{lstlisting}

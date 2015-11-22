@@ -1,0 +1,46 @@
+%%% Einheiten korrekt setzen (2 Varianten)
+
+% -------------------------------------------------
+% Variante 1: Alles manuell einstellen
+% Einheiten korrekt setzen
+%\usepackage{siunitx}
+% Hier: Ergänzung zu siunitx (\sfrac)
+%\usepackage{xfrac}
+% Konfiguration von siunitx
+%\sisetup{
+  %fraction-function = \sfrac,
+  %per-mode          = fraction,
+  %decimalsymbol		= comma, % Komma statt Punkt
+  %exponent-product  = \cdot, % 2x10^2 kg vs. 2.10^2 kg
+  %list-final-separator = { und },
+  %range-phrase = { bis },
+  %separate-uncertainty = true,
+  %inter-unit-separator={}\cdot{}, % m s vs. m.s
+%}
+% -------------------------------------------------
+
+%% -------------------------------------------------
+%% Variante 2: Über Zusatz-Pakete und Paketoptionen konfigurieren
+%% Hier: Damit siunitx weiß, welche Sprache eingestellt ist
+%% ngerman kann auch als Klassenoption übergeben werden
+\usepackage[ngerman]{translator}
+%% Einheiten korrekt setzen
+\usepackage{siunitx}
+%% Hier: Ergänzung zu siunitx (\sfrac)
+\usepackage{xfrac}
+%% Konfiguration von siunitx
+\sisetup{
+  locale=DE, % Komma statt Punkt \SI{1.3}{m} -> 1,3 m
+  fraction-function = \sfrac,
+  per-mode          = fraction,
+  %exponent-product  = \cdot, % 2x10^2 kg vs. 2.10^2 kg
+  separate-uncertainty = true,
+  %inter-unit-separator={}\cdot{}, % m s vs. m.s
+}
+%% -------------------------------------------------
+
+% Problem Leerzeichen nach Befehlen lösen
+\usepackage{xspace}
+
+\usepackage[onehalfspacing]{setspace}
+

@@ -1,0 +1,31 @@
+\label{appCode:klasseLogging}
+\begin{lstlisting}[language=java, caption=Klasse Logging]
+    protected void onCreate(Bundle savedInstanceState) {
+(...)
+        Bundle bundle = getIntent().getExtras();
+        BaseData baseData = (BaseData) bundle.getSerializable("baseData");
+        if (receiver == null) {
+            (...)
+                receiver = baseData.getReceiver();
+                receiver.registerListener(this);
+            (...)
+    }
+    
+        public void onEvent(String msg, String msgType) {
+            showMessage(msgType, msg);
+        }
+        
+    private void showMessage(String msgType, String msg) {
+        if (msgType.equals("l")) {
+            int MAX_LOG_AMOUNT = 10;
+            if (loggingList.size() >= MAX_LOG_AMOUNT) {
+                loggingList.remove(loggingList.size() - 1);
+            }
+            loggingList.add(0, msg);
+            arrayAdapter.notifyDataSetChanged();
+            int MAX_LOG_COUNTER = 100;
+            if (logCounter <= MAX_LOG_COUNTER - 1) logCounter += 1;
+            else logCounter = 0;
+        }
+    }
+\end{lstlisting}

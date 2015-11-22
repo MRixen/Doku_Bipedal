@@ -1,0 +1,35 @@
+\label{app:EventMessages}
+\begin{lstlisting}[language=Java, caption=Task EventMessages - Modul 
+EventMessages]
+PROC main()
+    CONNECT err_int WITH err_trap;
+    IError COMMON_ERR,TYPE_ALL,err_int;
+    WHILE TRUE DO
+	    WaitTime 0.01;
+    ENDWHILE
+ENDPROC
+
+TRAP err_trap
+    IF (DOutput(DOF_CycleOn))=1 AND firstCycleStart=0 THEN
+        robotState:=1;
+        firstCycleStart:=1;
+    ENDIF
+    IF (DOutput(DOF_CycleOn)=0) AND (firstCycleStart=1) THEN
+        robotState:=0;
+        firstCycleStart:=0;
+    ENDIF
+		tpWriteSocket 
+		ValToStr(robotState)+"::"+ValToStr(err_domain)+"::"+ValToStr(err_number)+"::"+ValToStr(err_type)+"::"+str1+"::"+"X"+"::"+"X"+"::"+"X"+"::"+"X",":e:";
+ENDTRAP
+	
+PROC tpWriteSocket(string msg,string msgType)
+	IF clientConnected THEN
+		sendbufferEvent{cntr}:=msgType+msg+";";
+		bufferStateEvent{cntr}:=TRUE;	
+		cntr:=cntr+1;
+		IF (cntr>=25) THEN
+			cntr:=1;
+		ENDIF
+	ENDIF
+ENDPROC
+\end{lstlisting}

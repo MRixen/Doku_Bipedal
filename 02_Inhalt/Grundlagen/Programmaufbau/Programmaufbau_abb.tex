@@ -1,0 +1,119 @@
+\subsection{ABB}
+\label{sec:ChapterABB}
+Das System besteht aus mehreren Tasks von denen vier für die Kommunikation 
+zwischen dem Abb-Controller und der Android-\gls{app} fungieren.
+Die jeweilige Kernaufgabe der Tasks wird im Folgenden erläutert und die 
+wichtigsten Code-Abschnitte aufgezeigt. \\
+Die Buffergröße beläuft sich aktuell auf 25 Einträge.
+
+\subsubsection{Task ServerComm}
+Der Task \textit{ServerComm} beinhaltet das Modul \textit{ServerComm} und ist 
+für die 
+grundsätzliche Kommunikation, d.h. für 
+das Senden und 
+Empfangen von Daten, zuständig.
+In den Zeilen 1 - 5 des Listings \ref{abbCode:moduleServerComm} ist die 
+Hauptroutine zu sehen, in welcher der Routinen-Aufruf \textit{waitForClients()} 
+endlos erfolgt.
+In dieser Routine wird der Socket von Case 1 bis einschließlich Case 3 
+(Zeile 9 - 10) initialisiert und in Case 4 (Zeile 14) auf eine 
+Client-Verbindung gewartet. 
+Sobald ein Client verbunden ist durchläuft die For-Schleife in Zeile 18 - 26 
+insgesamt acht Buffer (jeder Task besitzt zwei Buffer). Während ein Buffer die 
+zu sendenen Daten enthält, ist im zweiten Buffer ein Zustand hinterlegt, ob 
+Daten (für den jeweiligen Buffer) vorhanden sind.
+
+Sofern ein String zum Senden bereit liegt, der Buffer also ein Element an der 
+Position \textit{i} enthält, ist der Wert von bufferStateEvent\{i\} in Zeile 19 
+true.\\
+In Zeile 20 wird das Datenpaket (String) zum Client gesendet.
+Zeile 21 - 23 zeigen das Zurücksetzen des Buffers und eine Wartezeit, welche 
+notwendig ist, da sonst die Sendefrequenz zu hoch ist.
+
+Falls die Verbindung zusammenbricht oder ein ähnlicher Fehler erfolgt, der die 
+Kommunikation behindert, wird in Zeile 31 - 38 die Fehlerbehandlungsroutine 
+aufgerufen. Darin erfolgt der Aufruf von \textit{initSocket()}, wodurch die 
+Verbindung beendet und neu initialisiert wird. Der Programmzeiger ist 
+anschließend innerhalb kürzester Zeit (max. ca. 1s) wieder in Zeile 14 (warten 
+auf eingehende Verbindung). In dieser Zeit ist eine Client-Verbindung nicht 
+möglich.\\
+Um die Verbindung dauerhaft zu prüfen muss immer gesendet werden, da so der 
+Aufruf von \textit{SocketSend} einen Fehler generiert.
+\input{99_Anhang/Listing_TaskServer_Comm}
+
+\subsubsection{Task EventMessages}
+Der Task \textit{EventMessages} beinhaltet das Modul \textit{EventMessages} und 
+ist dafür zuständig alle Informationen, Warnungen und Fehler zu senden.\\
+Beispiel: Wenn der Roboter im Automatikbetrieb ein Programm abarbeitet und das 
+Programm gestoppt wird erfolgt das Senden einer entsprechenden Dialog-Nachricht 
+(vom Inhalt her wie auf dem Flexpendant).\\
+Das Modul besteht im Grunde nur aus einem Interrupt \textit{err\_trap}, dessen 
+Aufruf erfolgt sobald eine Ereignismeldung ansteht. Um den Interrupt aktiv zu 
+halten wird in der Hauptroutine, nach der Definition des Interrupts, eine 
+Endlos-Schleife durchlaufen (s. \ref{app:EventMessages} Zeile 1 - 7).
+Im Interrupt selbst erfolgt das Setzen eines Flags mit dem das Detektierten 
+eines Zyklusstop im Automatikbetrieb erfolgt. In Zeile 18 - 19 wird der zu 
+sendende String an die Routine \textit{tpWriteSocket()} übergeben.\\
+Die Routine \textit{tpWriteSocket()} schreibt u.A. den übergebenen String in 
+den entsprechenden Buffer des Tasks, sobald ein Client verbunden ist (s. Zeile 
+23 - 30).
+Der String setzt sich aus folgenden Komponenten zusammen (s. Bedeutung 
+\ref{tab:parameterEventMsg}):\\
+msgType+robotState+::+err\_domain+::+err\_number+::+err\_type+::+str1
+wodurch folgender Beispielstring vorliegen kann: :e:1::1::10::1::7
+\begin{table}[H]
+\caption{Bedeutung der Parameter}\label{tab:parameterEventMsg}
+\renewcommand{\arraystretch}{1.5} 
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\centering
+\begin{tabular}{|p{3cm}|p{8cm}|}
+\hline 
+\textbf{msgType} & Nachrichtentyp \textit{e} für Event \\ 
+\hline 
+\textbf{robotState} & Status des Zyklus (Motoren an/aus) \\ 
+\hline 
+\textbf{err\_domain} & Fehlerdomäne (Auswahl der entsprechenden xml-Datei) \\ 
+\hline 
+\textbf{err\_number} & Fehlernummer (Auswahl des entsprechenden Stings aus der 
+xml-Datei) \\ 
+\hline 
+\textbf{err\_type} & Fehlertyp (Info, Warnung, Fehler) \\ 
+\hline 
+\textbf{str1} & Erster zusätzlicher Textparameter \\ 
+\hline 
+\end{tabular} 
+\end{table}
+Der String im Code enthält mehrere X-Zeichen. Diese fungieren als Platzhalter, 
+da ansonsten die Gesamtlänge des Strings (max. 80 Characters) zu hoch wäre, 
+würden alle Parameter (str1 - str5) eingebettet sein. 
+
+Eine Beschreibung der einzelnen Parameter kann in der entsprechenden 
+ABB-Dokumentation nachgeschlagen werden.
+
+\input{99_Anhang/Listing_Task_EventMessages}
+
+\subsubsection{Task MachineData}
+Der Task \textit{MachineData} beinhaltet das Modul \textit{MachineData} und ist 
+dafür zuständig die Maschinendaten zu senden. Diese Daten beinhalten in der 
+aktuellen Version die in \ref{tab:machineData} dargestellten Parameter. Sobald 
+ein Client verbunden ist, beginnt das Senden eines String-Arrays mit der 
+Routine \textit{tpWriteSocket()} innerhalb einer For-Schleife (s. 
+\ref{app:MachineData} Zeile 5 - 12).
+
+\input{99_Anhang/Listing_Task_MachineData}
+
+\subsubsection{Task CycleTimer}
+Der Task \textit{CycleTimer} beinhaltet das Modul \textit{CycleTimer} und wurde 
+deshalb in einen externen Task implementiert, da sonst die Taktzeitaufzeichnung 
+den Bewegungstask zu stark belastet (Latenzen).\\
+Das Modul besteht vom Prinzip her aus den Interrupts \textit{nextCTtrap} und 
+\textit{resetCTtrap} (s. \ref{app:CycleTimer} Zeile 8 - 14). Um diese aktiv zu 
+halten wird in der Hauptroutine eine Endlos-Schleife durchlaufen (s. Zeile 1 - 
+6). Durch den Aufruf des Interrupts \textit{nextCTtrap} erfolgt der 
+Routinen-Aufruf von \textit{NextCycleTime()}, wodurch die entsprechenden Daten 
+an den Socket gesendet werden (s. Zeile 18 - 21). In Zeile 18 - 19 wird der 
+Routine \textit{tpWriteSocket()} als msgType :l: übergeben. Hierdurch wird der 
+übergebene String geloggt. Zeile 20 und 21 sendet die aktuelle Zykluszeit und 
+dessen Durchschhnitt (msgType :c1: und :c2:).
+
+\input{99_Anhang/Listing_Task_CycleTimer}

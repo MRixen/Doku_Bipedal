@@ -1,0 +1,73 @@
+ % Vorspann
+% ----------------------------------------------
+	\input{01_Vorspann/Dokumentenklasse.tex}
+	\input{01_Vorspann/Seitenlayout.tex}
+	\input{01_Vorspann/Pakete.tex}
+	%\input{01_Vorspann/Mathematik.tex}
+	%\input{01_Vorspann/Gleitumgebungen.tex}
+	\input{01_Vorspann/KopfUndFusszeile.tex}
+	\input{01_Vorspann/Schriften_und_Symbole.tex}
+	\input{01_Vorspann/VierteEbene.tex}
+	\input{01_Vorspann/Listing_Umgebung.tex}
+	\input{01_Vorspann/SI_Einheiten.tex}
+	\input{01_Vorspann/LayoutListings.tex}
+%	\input{01_Vorspann/AnhangsverzeichnisGenerieren.tex}
+	
+	% Zum Schluss laden!
+	\input{01_Vorspann/PDF-Zeugs.tex}
+% ----------------------------------------------
+
+% Eigene Einstellungen
+% ----------------------------------------------
+	\input{01_Vorspann/BezeichnungenAnpassen.tex}
+	\input{01_Vorspann/Eigene_definitionen.tex}
+	\input{01_Vorspann/Trennmuster.tex}
+	\input{01_Vorspann/CustomGlossar.tex}
+% ----------------------------------------------
+
+\input{99_Anhang/glossary}
+% Eigentliches Dokument
+
+
+% ----------------------------------------------
+\begin{document}
+\renewcommand*{\chapterheadstartvskip}{\vspace*{-50pt}}
+
+	\hypersetup{pageanchor=false}
+	\input{02_Inhalt/Titelseite.tex}
+	\newpage
+	
+	\include{02_Inhalt/Kurzfassung}		
+	
+	\hypersetup{pageanchor=true}
+	\pagestyle{plain} 
+	\pagenumbering{Roman}	% Römische Seitenzahlen (IV)
+	\setcounter{page}{1}
+	
+	\input{02_Inhalt/Verzeichnisse.tex}
+	\clearpage
+
+	\pagestyle{scrheadings} % Richtige Kopf- und Fußzeilen einschalten
+		
+	
+	\pagenumbering{arabic} % Arabische Seitenzahlen (4)
+	
+	\include{Vorlagen}
+	
+
+	
+%%%%%%%%%%%%%%%%%%%%%%%---INHALT----%%%%%%%%%%%%%%%%%
+	
+	\glsresetall
+	\include{02_Inhalt/Einleitung}
+	\include{02_Inhalt/Grundlagen}
+	\include{02_Inhalt/Ausblick}
+	
+	\pagenumbering{Roman}	% Römische Seitenzahlen (IV)
+	\bibliography{02_Inhalt/Literatur}
+	\include{02_Inhalt/Anhang}			
+    
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document} 
+% ----------------------------------------------

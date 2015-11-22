@@ -1,0 +1,158 @@
+\subsection{Android}
+\label{sec:ChapterAndroid}
+Das System besteht aus mehreren Klassen von denen die wichtigsten folgend 
+Erläuterung finden. Die Klassen sind der Reihenfolge nach den Tasks der 
+Robotersteuerung zuzuordnen. D.h. die Klasse \textit{Receiver} ist für die 
+grundsätzliche Kommunikation zuständig - entsprechend des Tasks 
+\textit{ServerComm}, etc.
+
+\subsubsection{Klasse Receiver}
+Die Klasse \textit{Receiver} ist für das Senden und Empfangen von Daten 
+zuständig. Die grundsätzliche Kommunikation erfolgt in der Klasse 
+\textit{NetClient}, 
+welche innerhalb des Konstruktors (s. \ref{appCode:klasseReceiver} Zeile 1 - 5) 
+als Objekt erzeugt wird. Die Übergabeparameter bestehen aus der IP-Adresse und 
+dem Port.
+
+Die Klasse Receiver implementiert ein Runnable, sodass innerhalb der Routine 
+run() die Kommunikation mit einem Client abläuft. In Zeile 9 erfolgt der 
+Verbindungsaufbau. Ist dieser erfolgreich, so beginnt das Empfangen von Daten 
+innerhalb einer While-Schleife (Zeile 11 - 20). Die empfangenen Daten werden 
+durch Events an alle Teilnehmer (Klasse Events, MachineData und CycleTime) 
+gesendet innerhalb derer die Nachricht entsprechend des Inhalts von 
+msgType extrahiert wird.\\
+Ist die Verbindung nicht erfolgreich, so erfolgt die Ausgabe einer Meldung auf 
+dem Display und die App wird nach einer Zeit x beendet (s. Zeile 22 - 32).
+
+Mit der Routine \textit{registerListener()} erfolgt das Registrieren auf den 
+Event-Generator. Dieses Interface beinhaltet die Methode onEvent(), die zwei 
+Übergabeparameter aufweist, um den Nachrichtentyp (msgType z.B. :e: für Event) 
+und die Nachricht selbst zu übertragen.
+
+\input{99_Anhang/Listing_Klasse_Receiver}
+
+\subsubsection{Klasse Events}
+Die Klasse \textit{Events} definiert einen Tab und empfängt/verarbeitet die von 
+der Robotersteuerung gesendeten Events (Information, Warnung, Fehler). Die 
+Klasse registriert sich (wie in allen anderen Tab-Klassen auch) in ihrer 
+Methode \textit{onCreate()} auf den Event-Generator, bzw. das Interface 
+\textit{EventListener} (s. \ref{appCode:klasseEvents} Zeile 7 - 8).\\
+Sobald die Robotersteuerung einen String sendet, erfolgt der Aufruf von 
+\textit{onEvent()} und einhergehend der Aufruf von \textit{showEvent()} (s. 
+Zeile 12 - 14 und 16 - 22). Daraufhin wird geprüft, ob der Nachrichtentyp 
+(msgType) das 
+Zeichen \textit{e} beinhaltet (s. Zeile 17). Ist dies der Fall so wird der 
+String aufgeteilt und dem Objekt \textit{XMLParsing()} übergeben (s. Zeile 20).
+
+Die Klasse \textit{XMLParsing} erzeugt das String-Array 
+$\textit{eventDescription[]}$, das den gesamten Meldungstext 
+beinhaltet. D.h. anhand der Parameter Fehlerdomäne und Fehlernummer erfolgt die 
+Auswahl der xml-Datei (Zeile 30 - 40 verkürzt dargestellt) in welcher der 
+Beschreibungstext für die Meldung hinterlegt ist.\\
+Das Array $\textit{eventMessages[]}$ enthält an der Position 1 die 
+Fehlerdomäne, an Position 2 die Fehlernummer und an Position 3 den Fehlertyp. 
+Alle weiteren Positionen beinhalten die Textparameter.
+
+Das Parsen der entsprechenden xml-Datei erfolgt in Zeile 45 - 78 mit einer 
+Switch-Case Struktur. In dem ersten Case (Zeile 48 - 56) wird (innerhalb von 
+if-Abfragen) der Ort eines xml-Eintrages gesucht und die hinterlegten Strings 
+in das Array \textit{eventDescription$[$$]$} kopiert (die Cases sind verkürzt 
+dargestellt). Im zweiten Case (Zeile 70 - 72) wird das Ende des Dokuments 
+detektiert.\\
+Ist das Parsen beendet erfolgt der Methoden-Aufruf \textit{onPostExecute()} 
+(Zeile 80 - 85) und der Meldungstext wird sofort als Dialog mit Vibration 
+dargestellt (sofern die Motoren ausgeschaltet sind, bzw. eventMessages$[$0$]$ 
+== 0 ist) oder in eine Liste geschrieben.
+
+Die xml-Dateien wurden von der Robotersteuerung extrahiert und in die 
+App-Struktur eingefügt.
+
+\input{99_Anhang/Listing_Klasse_Events}
+
+\subsubsection{Klasse MachineData}
+Die Klasse \textit{MachineData} definiert einen Tab und zeigt tabbelarisch die 
+Maschinendaten auf. Die Klasse registriert sich (wie in allen anderen 
+Tab-Klassen auch) in ihrer 
+Methode \textit{onCreate()} auf den Event-Generator, bzw. das Interface 
+\textit{EventListener} (s. \ref{appCode:klasseMachineData} Zeile 7 - 8).\\
+Sobald die Robotersteuerung einen String sendet, erfolgt der Aufruf von 
+\textit{onEvent()} und einhergehend der Aufruf von \textit{showEvent()} (s. 
+Zeile 12 - 14 und 16 - 27). Daraufhin wird geprüft, ob der Nachrichtentyp 
+(msgType) eine Zahl (0, 1, 2, n) enthält (s. Zeile 18 - 21). Ist dies der 
+Fall so wird der 
+String der entsprechenden Zeile in der Tabelle übergeben (s. Zeile 24 - 25).
+
+\input{99_Anhang/Listing_Klasse_MachineData}
+
+\subsubsection{Klasse CycleTime}
+Die Klasse \textit{CycleTime} definiert einen Tab und stellt den 
+aktuellen, sowie den Durchschnitts-Wert der Zykluszeit dar. Die Klasse 
+registriert sich (wie in allen anderen 
+Tab-Klassen auch) in ihrer 
+Methode \textit{onCreate()} auf den Event-Generator, bzw. das Interface 
+\textit{EventListener} (s. \ref{appCode:klasseCycleTime} Zeile 7 - 8).\\
+Sobald die Robotersteuerung einen String sendet, erfolgt der Aufruf von 
+\textit{onEvent()} und einhergehend der Aufruf von \textit{showEvent()} (s. 
+Zeile 12 - 14 und 16 - 25). Daraufhin wird geprüft, ob der Nachrichtentyp 
+(msgType) das Zeichen \textit{c1} oder \textit{c2} enthält (s. Zeile 17 - 24). 
+Ist dies der Fall so wird der 
+String dem entsprechenden Textfeld übergeben (s. Zeile 19 und 23).
+
+\input{99_Anhang/Listing_Klasse_CycleTime}
+
+\subsubsection{Klasse Logging}
+Die Klasse \textit{Logging} definiert einen Tab und stellt die 
+Logging-Nachrichten dar, die der User ansonsten auf dem FlexPendant unter 
+Logging 
+sehen würde. Die Klasse registriert sich (wie in allen anderen 
+Tab-Klassen auch) in ihrer 
+Methode \textit{onCreate()} auf den Event-Generator, bzw. das Interface 
+\textit{EventListener} (s. \ref{appCode:klasseLogging} Zeile 7 - 8).\\
+Sobald die Robotersteuerung einen String sendet, erfolgt der Aufruf von 
+\textit{onEvent()} und einhergehend der Aufruf von \textit{showEvent()} (s. 
+Zeile 12 - 14 und 16 - 28). Daraufhin wird geprüft, ob der Nachrichtentyp 
+(msgType) das Zeichen \textit{l} enthält (s. Zeile 17). 
+Ist dies der Fall so wird der 
+String einer Liste hinzugefügt (s. Zeile 22 - 23) mit dem aktuellsten Eintrag 
+an oberster Stelle. Die maximale Länge der Liste beläuft sich aktuell auf 10. 
+Ist diese überschritten, so wird der letzte Listeneintrag gelöscht.
+
+\input{99_Anhang/Listing_Klasse_Logging}
+
+Alle weiteren Klassen, die bei dem Zusammenspiel zwischen der Robotersteuerung 
+und der App beteiligt sind finden im Folgenden Erläuterung. Dabei wird kurz die 
+Funktion erläutert.
+
+\textbf{MainActivity}\\
+In dieser Klasse werden die Tabs generiert und dargestellt, sowie der 
+Barcode-Reader gestartet und auf dessen Ergebnis gewartet. Ist dieses i.O. so 
+erfolgt das Starten des Receiver-Threads.
+
+\textbf{BaseData}\\
+Diese Klasse ist für die Datenablage gedacht, die von verschiedenen Klassen  
+benötigt werden.
+
+\textbf{NetClient}\\
+Die Klasse \textit{NetClient} ist für die grundsätzliche Kommunikation 
+zuständig. D.h. Verbindungsauf- und abbau, sowie Senden und Empfangen von 
+Daten. In der Methode \textit{receiveDataFromServer()} wird bspw. jedes 
+Character eingelesen.
+
+\textbf{CustomDialogEvent}\\
+Diese Klasse erzeugt den Dialog, welcher alle Komponenten für die Darstellung 
+des Meldungstextes enthält (Information, Warnung, Fehler).
+
+Es existieren noch weitere Dialog-Klassen, welche für bestimmte Anwendungsfälle 
+konzipiert sind. So wird bspw. mit der Klasse \textit{CustomDialogAbout} die 
+About-Information dargestellt. Alle weiteren Dialog-Klassen werden aktuell 
+nicht genutzt.
+
+\textbf{BarCodeReading}\\
+Diese Klasse erzeugt den QR-Code Reader, validiert den Inhalt des Codes und 
+gibt eine Rückmeldung an die Klasse \textit{MainActivity} zurück.
+
+\textbf{CycleTimeDrawThread}\\
+Um die Zykluszeit grafisch darstellen zu können ist diese Klasse hilfreich. 
+Darin enthalten sind Methoden, mit denen einen grafische Ausgabe (Diagramm) 
+erzeugt werden kann. Aktuell wird die Klasse nicht genutzt.
+
